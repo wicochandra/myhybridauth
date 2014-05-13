@@ -1,6 +1,7 @@
 {
     "name": "wicochandra/myhybridauth",
     "description": "This is my custom hybridauth",
+    "keywords": ["package", "laravel", "hybridauth"],
     "authors": [
         {
             "name": "Wico Chandra",
