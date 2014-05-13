@@ -1,0 +1,21 @@
+{
+    "name": "wicochandra/myhybridauth",
+    "description": "This is my custom hybridauth",
+    "authors": [
+        {
+            "name": "Wico Chandra",
+            "email": "wicochandra@hotmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.1.*",
+        "hybridauth/hybridauth": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "Wicochandra\\Myhybridauth": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
