@@ -2,6 +2,9 @@
     "name": "wicochandra/myhybridauth",
     "description": "This is my custom hybridauth",
     "keywords": ["package", "laravel", "hybridauth"],
+    "homepage": "https://github.com/wicochandra/myhybridauth",
+    "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "Wico Chandra",
@@ -18,5 +21,5 @@
             "Wicochandra\\Myhybridauth": "src/"
         }
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "dev"
 }
