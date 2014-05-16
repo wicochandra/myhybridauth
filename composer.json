@@ -13,10 +13,8 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "illuminate/support": "4.1.*"
-    },
-    "require-dev": {
-        "hybridauth/hybridauth": "dev-master"
+        "illuminate/support": "4.1.*",
+        "hybridauth/hybridauth": "dev-master@dev"
     },
     "autoload": {
         "psr-0": {
