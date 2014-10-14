@@ -1,0 +1,570 @@
+FORMAT: 1A
+HOST: http://bango.co.id
+
+# Warisankuliner
+
+## Group Description
+**Important Notice :**
+
+On some API calls, we use the params *type_id* AND *ref_id* (mostly for comments and ratings API calls)
+
+*type_id* variable only accepts 3 values : `1`, `2`, or `3`
+
+* `1` => means the related content type is a recipe
+* `2` => means the related content type is a tip
+* `3` => means the related content type is a store
+
+Depending on *type_id* value, *ref_id* will refer to *recipe_id* (if *type_id* = `1`), *tip_id* (if *type_id* = `2`), or *store_id* (if *type_id*= `3`)
+
+API Response Scheme
+-------------------
+API call's respnse will be json encoded and will contain either 2 or 3 parameters :
+
+* **[status]**
+    
+  Can be `success` or `error`.
+
+  * **Success**
+
+     Means that the API call was successfully done without any errors encountered
+
+  * **Error**
+
+      Error is usually returned when method called is wrong or some required parameters are missing
+
+* **[log]**
+
+    An explaination of what was done when the API was called. Can explain why i had to return status “error”, or what was done following status “success”
+
+* **[data]**
+  * If `status` = `error`, data will not exist.
+  * If `status` = `success`, data will always be returned. Data can contain three kind of content :
+      * An number (if, for example, we want to get the number of recipes
+      * A string (eg : NOT_RATED if we notify the app that a content has not been rated by a user
+      * An array/object containing undefined amount of data (example : all information regarding a recipe (title, description, etc)
+
+# Group User
+To retrieve user detail and create new user
+## User Detail [/user/details/{?uid}]
+### Retrieve User [GET]
++ Parameters
+    + uid (required, number, `11111111`) ... The `uid` of the user's facebook id.
++ Response 200 (application/json)
+
+        {
+            "log": "User found",
+            "data": {
+                "user_id": "2",
+                "status": "2",
+                "uid": "11111111111",
+                "first_name": "Bang",
+                "last_name": "Bango",
+                "location": "?",
+                "gender": "2",
+                "views": "70621",
+                "email": "warisankuliner@gmail.com",
+                "birth_date": "1989-04-17",
+                "join_date": "2012-05-04 17:13:27",
+                "profile_id": "2",
+                "last_access_date": "2012-05-04 17:13:27",
+                "pledge": "0",
+                "pledge_date": "0000-00-00 00:00:00",
+                "full_name": "Bang Bango",
+                "address": "Bango Street",
+                "city": "Jakarta",
+                "zip": "11260",
+                "id_type": "1",
+                "id_number": "bang-bango",
+                "phone": "12345678",
+                "twitter": "warisankuliner"
+            },
+            "status": "success"
+        }
+
+
++ Response 200 
+
+        {
+            "log": "No user was found!",
+            "data": "0",
+            "status": "error"
+        }
+        
+## Create User [/user/create/]
+Create new user with data below. All of data are obtainable from facebook API 
+after user login to the app.
+
+1.  ***key*** - string, **required** - API key
+1.  ***uid*** - number, **required** - User's facebook id
+1.  ***first_name*** - string, **required** - First name of the user
+1.  ***last_name*** - string, **required** - Last name of the user
+1.  ***gender*** - enum(`male`,`female`), **required** - Gender of the user
+1.  *email* - string, optional - Email of the user
+1.  *location* - string, optional - Location of the user
+
+### Create new User [POST]
+
++ Request (application/x-www-form-urlencoded)
+
+        key=222222222222222&uid=11111111&first_name=James&last_name=Bond&gender=male&email=test@example.com&birth_date=1992-06-12&location=Jakarta, Indonesia
+        
+        
++ Response 200 (application/json)
+
+        {
+            "status":"success",
+            "log":"User has been successfully created.",
+            "data":{
+                "uid":"11111112",
+                "first_name":"James",
+                "last_name":"Bond",
+                "gender":"male",
+                "email":"test%40example.com",
+                "birth_date":"1992-06-12",
+                "location":"Jakarta%2C%20Indonesia",
+                "user_id":18806,
+                "status":1
+            }
+        }
+
+
+# Group Store
+
+Retrieve store's resource.
+
+## List of Stores [/stores/list{?user_id, status, featured, exclude_id, keyword, nearby, lg, lt, distance, cp, pp, by, order}]
+
+Returns a list of stores for the specified parameters.
+### List of Stores [GET]
+
++ Parameter
+    
+    + user_id (optional, number, `123`) ... User id. Default is *empty*.
+    + status (optional, enum, `1`) ... Store's status. `0` (not approved), `1` (approved). Default is `1`.
+    + featured (optional, enum, `0`) ... Featured Store. `0` (not featured), `1` (featured). Default is *empty*.
+    + exclude_id (optional, number, `321`) ... Exclude one store's id. Default is *empty*.
+    + keyword (optional, string, `james`) ... Keyword to search from *name*, *description*, and *city* columns.
+    + nearby (optional, enum, `1`) ... Enable search for nearby stores. `1` (enabled), `0` (disabled) . default is *empty*.
+    + lg (optional, number, `123.321`) ... Longitute is **required** if *nearby* is enabled. default is *empty*.
+    + lt (optional, number, `123.321`) ... Latitute is **required** if *nearby* is enabled. default is *empty*.
+    + distance (optional, number, `5`) ... How much distanse to be searched and has metic same as *lg* and *lt*. Distance is **required** if *nearby* is enabled. default is *empty*.
+    + cp (optional, number, `1`) ... Current page. Default is `1`
+    + pp (optional, number, `5`) ... Results per page. Default is `5`.
+    + by (optional, enum, `date_added`) ... Sort result by. `date_added`, `date_approved`, `store_id`, `user_id`, `rating`. Default is `date_approved`.
+    + order (optional, enum, `asc`) ... Order of the sort. `asc`, `desc`. Default value is `desc`.
+
++ Response 200 (application/json)
+
+        {
+            "status": "success",
+            "log": "Stores successfully returned",
+            "data": [
+                {
+                    "store_id": "1024",
+                    "name": "Es Mambo & Yoghurt Lembang",
+                    "address": "Jl. Cijeruk No.19A, Bandung 40391.",
+                    "city": "Bandung",
+                    "description": " ",
+                    "lt": "-6.2060905",
+                    "lg": "106.8475342",
+                    "pic": "",
+                    "temp_pic": "",
+                    "date_submitted": "2014-03-24 16:26:39",
+                    "date_approved": "2014-03-24 16:26:39",
+                    "views": "0",
+                    "status": "1",
+                    "featured": "0",
+                    "user_id": "2",
+                    "meta_title": "",
+                    "meta_description": "",
+                    "meta_keywords": "",
+                    "nb_ratings": "0",
+                    "average_rating": "",
+                    "nb_comments": "0",
+                    "first_name": "Bang",
+                    "last_name": "Bango",
+                    "uid": "100003828881061",
+                    "birth_date": "1989-04-17",
+                    "location": "?",
+                    "area_id": "3",
+                    "area": "Bandung"
+                },
+                {
+                    "store_id": "1023",
+                    "name": "Bandoengsche Melk Centrale (BMC)",
+                    "address": "Jl. Aceh No.30, Bandung 40117.",
+                    "city": "Bandung",
+                    "description": " ",
+                    "lt": "-6.2060905",
+                    "lg": "106.8475342",
+                    "pic": "",
+                    "temp_pic": "",
+                    "date_submitted": "2014-03-24 16:26:27",
+                    "date_approved": "2014-03-24 16:26:27",
+                    "views": "0",
+                    "status": "1",
+                    "featured": "0",
+                    "user_id": "2",
+                    "meta_title": "",
+                    "meta_description": "",
+                    "meta_keywords": "",
+                    "nb_ratings": "0",
+                    "average_rating": "",
+                    "nb_comments": "0",
+                    "first_name": "Bang",
+                    "last_name": "Bango",
+                    "uid": "100003828881061",
+                    "birth_date": "1989-04-17",
+                    "location": "?",
+                    "area_id": "3",
+                    "area": "Bandung"
+                }
+            ]
+        }
+        
++ Response 200
+        
+        {
+            "status": "error",
+            "log": "Error(s) found : $status variable must be 0 or 1!\n"
+        }
+
+## Detail of Store [/stores/details/{?store_id}]
+
+Returns all details related to a store.
+### Detail of Store [GET]
+
++ Parameter
+    
+    + store_id (required, number, `123`) ... store id
+
++ Response 200 (application/json)
+
+        {
+            "status": "success",
+            "log": "Store was found",
+            "data": {
+                "store_id": "1024",
+                "name": "Es Mambo & Yoghurt Lembang",
+                "address": "Jl. Cijeruk No.19A, Bandung 40391.",
+                "city": "Bandung",
+                "description": " ",
+                "lt": "-6.2060905",
+                "lg": "106.8475342",
+                "pic": "",
+                "temp_pic": "",
+                "date_submitted": "2014-03-24 16:26:39",
+                "date_approved": "2014-03-24 16:26:39",
+                "views": "0",
+                "status": "1",
+                "featured": "0",
+                "user_id": "2",
+                "meta_title": "",
+                "meta_description": "",
+                "meta_keywords": "",
+                "nb_ratings": "0",
+                "average_rating": "",
+                "nb_comments": "0",
+                "first_name": "Bang",
+                "last_name": "Bango",
+                "uid": "100003828881061",
+                "birth_date": "1989-04-17",
+                "location": "?"
+            }
+        }   
+
++ Response 200 
+
+        {
+            "status": "error",
+            "log": "Store not found. Either this store does not exist, or it has not been approved yet by admin"
+        }
+
+## Count Store [/stores/count/{?user_id, status, featured, exclude_id, keyword, nearby, lg, lt, distance}]
+
+Return total store.
+### Count Store [GET]
+
++ Parameter
+
+    + user_id (optional, number, `123`) ... User id. Default is *empty*.
+    + status (optional, enum, `1`) ... Store's status. `0` (not approved), `1` (approved). Default is `1`.
+    + featured (optional, enum, `0`) ... Featured Store. `0` (not featured), `1` (featured). Default is *empty*.
+    + exclude_id (optional, number, `321`) ... Exclude one store's id. Default is *empty*.
+    + keyword (optional, string, `james`) ... Keyword to search from *name*, *description*, and *city* columns.
+    + nearby (optional, enum, `1`) ... Enable search for nearby stores. `1` (enabled), `0` (disabled) . default is *empty*.
+    + lg (optional, number, `123.321`) ... Longitute is **required** if *nearby* is enabled. default is *empty*.
+    + lt (optional, number, `123.321`) ... Latitute is **required** if *nearby* is enabled. default is *empty*.
+    + distance (optional, number, `5`) ... How much distanse to be searched and has metic same as *lg* and *lt*. Distance is **required** if *nearby* is enabled. default is *empty*.
+    
++ Response 200 (application/json)
+
+        {
+            "status": "success",
+            "log": "The returned number is the number of stores found for the specified parameters",
+            "data": "645"
+        }
+
++ Response 200
+
+        {
+            "status": "error",
+            "log": "Error(s) found : $status variable must be 0 or 1!\n"
+        }
+
+## Post Store [/stores/post/]
+
+Create new store using data at below. 
+
+1.  ***key*** - string, **required** - API key.
+1.  ***user_id*** - integer, **required** - User id.
+1.  ***name*** - string, **required** - Name of the store.
+1.  ***address*** - string, **required** - Address of the store.
+1.  ***city*** - string, **required** - City of the store.
+1.  ***desciption*** - string, **required** - Description of the store.
+1.  ***pic*** - data, **required** - Picture data. Must be encoded to base64.
+1.  ***lg*** - number, **required** - Longitude of the store location.
+1.  ***lt*** - number, **required** - Latitude of the store location.
+
+### Post Store [POST]
+
++ Response 200 (application/json)
+
+        {
+            "status": "success",
+            "log": "The store was successfully added. It will appear when it will have been added and edited by the admin."
+            "data": 610
+        }
+
++ Response 200
+
+        {
+            "status"; "error",
+            "data"
+        }
+     
+# Group Recipe
+
+Retrieve recipe's resource.
+
+##  List of Recipes [/recipes/list{?user_id, status, featured, exclude_id, keyword, nearby, lg, lt, distance, cp, pp, by, order}]
+
+Returns a list of repices for the specified parameters.
+
+
+# Group Tip
+
+# Group Tag
+
+# Group Rating
+
+
+# Group Comment
+
+Retrieve comment's resource.
+## List of Comment [/comments/list/{?type_id, ref_id, user_id, status, cp, pp, by, order}]
+
+returns a list of comments for the specified parameters.
+### List of Comment [GET]
++ Parameter
+    
+    + type_id (optional, enum, `1`) ... Type of content. `1` for recipe, `2` for tip, `3` for store. Default is *empty*. 
+    + ref_id (optional, number, `101`) ... The content id. Depend on *type_id*. Default is *empty*.
+    + user_id (optional, number, `12`) ... The user's *id*. Default is *empty*.
+    + status (optional, enum, `0`) ... Status of the comments. `0` (not approved), `1` (approved). Default value is `1`.
+    + cp (optional, number, `1`) ... Current page. Default is `1`
+    + pp (optional, number, `5`) ... Results per page. Default is `5`.
+    + by (optional, enum, `date_added`) ... Sort result by. `date_added`, `date_approved`, `comment_id`, `user_id`, `type_id`. Default is `date_approved`.
+    + order (optional, enum, `asc`) ... Order of the sort. `asc`, `desc`. Default value is `desc`.
+
++ Response 200 (application/json)
+
+        {
+            "status": "success",
+            "log": "Comments successfully returned",
+            "data": [
+                {
+                    "comment_id": "664",
+                    "type_id": "1",
+                    "ref_id": "67",
+                    "user_id": "17048",
+                    "comment": "uhpb9uh\njj\n\njbbjbhbuhh09887654334ffuvvmvm y",
+                    "date_added": "2014-03-19 18:21:22",
+                    "date_approved": "2014-03-19 18:21:22",
+                    "status": "1",
+                    "first_name": "Sri",
+                    "last_name": "Mulyani",
+                    "uid": "1578232895",
+                    "birth_date": "0000-00-00",
+                    "location": ""
+                },
+                {
+                    "comment_id": "662",
+                    "type_id": "3",
+                    "ref_id": "700",
+                    "user_id": "9782",
+                    "comment": "Harus dicoba!!!!",
+                    "date_added": "2014-03-06 16:50:35",
+                    "date_approved": "2014-03-06 16:50:35",
+                    "status": "1",
+                    "first_name": "Iyonie",
+                    "last_name": "Narita",
+                    "uid": "701921791",
+                    "birth_date": "1978-11-29",
+                    "location": "Jakarta, Indonesia"
+                },
+                {
+                    "comment_id": "660",
+                    "type_id": "1",
+                    "ref_id": "1512",
+                    "user_id": "18088",
+                    "comment": "Resepnya kok g ada",
+                    "date_added": "2014-03-02 19:42:32",
+                    "date_approved": "2014-03-02 19:42:32",
+                    "status": "1",
+                    "first_name": "Alexandra",
+                    "last_name": "Mooi",
+                    "uid": "100000622044589",
+                    "birth_date": "1977-11-15",
+                    "location": "Ang Mo Kio, Singapore"
+                },
+                {
+                    "comment_id": "657",
+                    "type_id": "3",
+                    "ref_id": "53",
+                    "user_id": "5557",
+                    "comment": "pedas gak",
+                    "date_added": "2014-02-20 11:48:52",
+                    "date_approved": "2014-02-20 11:48:52",
+                    "status": "1",
+                    "first_name": "Thomas",
+                    "last_name": "Suparman",
+                    "uid": "1693821290",
+                    "birth_date": "0000-00-00",
+                    "location": ""
+                },
+                {
+                    "comment_id": "653",
+                    "type_id": "1",
+                    "ref_id": "252",
+                    "user_id": "17959",
+                    "comment": "coba ah",
+                    "date_added": "2014-02-13 10:00:18",
+                    "date_approved": "2014-02-13 10:00:18",
+                    "status": "1",
+                    "first_name": "Ibnu",
+                    "last_name": "Hidayat",
+                    "uid": "1723035961",
+                    "birth_date": "0000-00-00",
+                    "location": ""
+                }
+            ]
+        }
+
++ Response 200
+
+        {
+            "status": "error",
+            "log": "Error(s) found : $type_id variable must be a number between 1 and 3!\n"
+        }
+        
+## Detail of Comment [/comments/details/{?comment_id}]
+
+returns all details related to a comment.
+### Detail of Comment [GET]
++ Parameter
+    
+    + comment_id (required, number, `123`) ... Comment id
+
++ Response 200 (application/json)
+
+        {
+            "status": "success",
+            "log": "Comment was found",
+            "data": {
+                "comment_id": "664",
+                "type_id": "1",
+                "ref_id": "67",
+                "user_id": "17048",
+                "comment": "uhpb9uh\njj\n\njbbjbhbuhh09887654334ffuvvmvm y",
+                "date_added": "2014-03-19 18:21:22",
+                "date_approved": "2014-03-19 18:21:22",
+                "status": "1",
+                "first_name": "Sri",
+                "last_name": "Mulyani",
+                "uid": "1578232895",
+                "birth_date": "0000-00-00",
+                "location": ""
+            }
+        }
+
++ Response 200
+
+        {
+            "status": "error",
+            "log": "Comment not found. Either this comment does not exist, or it has not been approved yet by admin"
+        }
+
+## Count Comment [/comments/count/{?type_id, ref_id}]
+
+Return total comments.
+### Count Comment [GET]
+
++ Parameter
+    
+    + type_id (optional, enum, `1`) ... Type of content. `1` for recipe, `2` for tip, `3` for store. Default value is empty (all type). 
+    + ref_id (optional, number, `101`) ... The content id. Depend on *type_id*
+
++ Response 200 (application/json)
+
+        {
+            "status": "success",
+            "log": "The returned number is the number of comments found for the specified parameters",
+            "data": "664"
+        }
+        
++ Response 200
+
+        {
+            "status": "error",
+            "log": "Error(s) found : $type_id variable must be a number between 1 and 3!\n"
+        }
+
+## Post Comment [/comments/post/]
+
+Create new comment using data at below. 
+
+1.  ***key*** - string, **required** - API key
+1.  ***type_id*** - enum(`1`,`2`,`3`), **required** - Type of content
+1.  ***ref_id*** - number, **required** - Content id. Depend of *type_id*
+1.  ***user_id*** - number, **required** - User id
+1.  ***comment*** - string, **required** - User's comment (make sure to properly encode the string!)
+
+### Post Comment [POST]
+
++ Request (application/x-www-form-urlencoded)
+
+        key=123123123&type_id=1&ref_id=123123&user_id=18817&comment=testah+asdalskd+asdas+asd+asd+*****+)(A*
+
+
++ Response 200 (application/json)
+
+        {
+            "status": "success",
+            "log": "The comment was successfully added",
+            "data": 666
+        }
+
++ Response 200
+    
+        {
+            "status": "error",
+            "log": "Error(s) found : $type_id (Post) variable must be a number between 1 and 3!\n"
+        }
+
+
+# Group Category
+
+# Group Profile
+
+# Group Slide
